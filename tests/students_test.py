@@ -1,3 +1,6 @@
+from core.models.assignments import Assignment, AssignmentStateEnum
+
+
 def test_get_assignments_student_1(client, h_student_1):
     response = client.get(
         '/student/assignments',
@@ -58,11 +61,15 @@ def test_post_assignment_student_1(client, h_student_1):
 
 
 def test_submit_assignment_student_1(client, h_student_1):
+    assignment_id = 2
+    # Ensure the assignment is in DRAFT state
+    Assignment.set_status_by_id(assignment_id, AssignmentStateEnum.DRAFT)
+
     response = client.post(
         '/student/assignments/submit',
         headers=h_student_1,
         json={
-            'id': 2,
+            'id': assignment_id,
             'teacher_id': 2
         })
 
@@ -75,11 +82,15 @@ def test_submit_assignment_student_1(client, h_student_1):
 
 
 def test_assignment_resubmit_error(client, h_student_1):
+    assignment_id = 2
+    # Ensure the assignment is in SUBMIT state
+    Assignment.set_status_by_id(assignment_id, AssignmentStateEnum.SUBMITTED)
+
     response = client.post(
         '/student/assignments/submit',
         headers=h_student_1,
         json={
-            'id': 2,
+            'id': assignment_id,
             'teacher_id': 2
         })
     error_response = response.json
